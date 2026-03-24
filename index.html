@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recytron Elite - ODS 12</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --v-bosque: #1b4332; --v-eco: #2d6a4f; --v-menta: #95d5b2;
+            --amarillo-ods: #ffb703; --rojo: #e63946; --neon: #39ff14;
+        }
+
+        body { 
+            font-family: 'Quicksand', sans-serif; margin: 0; overflow: hidden;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
+                        url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover; background-position: center;
+        }
+
+        /* --- HOJAS (MEMORIA LIMPIA) --- */
+        .leaf { position: absolute; top: -50px; z-index: 1; pointer-events: none; font-size: 24px; animation: fall linear forwards; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
+
+        /* --- EXPLOSIÓN --- */
+        .particle { position: absolute; pointer-events: none; z-index: 300; border-radius: 50%; animation: explode 1s ease-out forwards; }
+        @keyframes explode { 0% { transform: translate(0,0) scale(1); opacity:1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity:0; } }
+
+        /* --- ANUNCIADOR GIGANTE (PREMIO) --- */
+        #big-announcer {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            background: white; padding: 50px; border-radius: 40px; border: 8px solid var(--amarillo-ods);
+            z-index: 500; text-align: center; box-shadow: 0 0 100px rgba(0,0,0,0.5); 
+            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #big-announcer.show { transform: translate(-50%, -50%) scale(1); }
+
+        /* --- TARJETA PRINCIPAL --- */
+        .card { 
+            background: rgba(255, 255, 255, 0.9); padding: 2.5rem; border-radius: 40px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); width: 90%; max-width: 480px; 
+            text-align: center; backdrop-filter: blur(10px); border: 4px solid var(--v-menta); position: relative; z-index: 10;
+        }
+
+        /* --- BOTONES NEÓN --- */
+        button { 
+            background: var(--v-eco); color: white; border: none; padding: 15px;
+            border-radius: 20px; cursor: pointer; font-weight: bold; width: 100%;
+            margin-top: 10px; transition: 0.3s; font-family: 'Montserrat', sans-serif;
+            text-shadow: 0 0 10px var(--neon); box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
+        }
+        button:hover:not(:disabled) { transform: scale(1.02); text-shadow: 0 0 20px var(--neon); box-shadow: 0 0 25px rgba(57, 255, 20, 0.5); }
+        
+        button.oro { 
+            background: var(--amarillo-ods); color: black; 
+            text-shadow: 0 0 10px white; box-shadow: 0 0 15px rgba(255,183,3,0.4);
+        }
+
+        /* --- RULETA --- */
+        .wheel-container { position: relative; width: 280px; height: 280px; margin: 20px auto; }
+        #wheel {
+            width: 100%; height: 100%; border-radius: 50%; border: 6px solid white;
+            position: relative; transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1);
+            background: conic-gradient(
+                #2d6a4f 0 36deg, #1b4332 36deg 72deg, #2d6a4f 72deg 108deg, #1b4332 108deg 144deg,
+                #2d6a4f 144deg 180deg, #1b4332 180deg 216deg, #2d6a4f 216deg 252deg, #1b4332 252deg 288deg,
+                #2d6a4f 288deg 324deg, var(--amarillo-ods) 324deg 360deg
+            );
+        }
+        .w-txt {
+            position: absolute; width: 50%; top: 50%; left: 50%; transform-origin: left center;
+            color: white; font-size: 9px; font-weight: bold; text-align: right; padding-right: 15px;
+        }
+        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid var(--rojo); z-index: 20; }
+
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
+        .hidden { display: none !important; }
+        .scroll { max-height: 200px; overflow-y: auto; background: #f0f0f0; border-radius: 15px; padding: 10px; }
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="big-announcer">
+        <h2 style="margin:0; color:var(--v-bosque)">¡ENHORABUENA!</h2>
+        <h1 id="prize-display" style="font-size: 2.5rem; color:var(--v-eco); margin: 20px 0;">PREMIO</h1>
+        <button onclick="closePrize()" class="oro">RECOGER RECOMPENSA</button>
+    </div>
+
+    <div id="view-login" class="card">
+        <h1 style="color:var(--v-bosque)">RECYTRON 🌿</h1>
+        <input type="text" id="uIn" placeholder="Usuario (pedro)">
+        <input type="password" id="pIn" placeholder="Contraseña (123)">
+        <button onclick="entrar()">ENTRAR AL PANEL</button>
+        <button class="oro" onclick="login(users[0])" style="font-size: 0.7rem;">SIMULAR RFID</button>
+    </div>
+
+    <div id="view-dash" class="card hidden">
+        <div style="background:var(--v-bosque); color:white; padding:10px; border-radius:15px; margin-bottom:15px; display:flex; justify-content:space-around;">
+            <b>👤 <span id="uName"></span></b>
+            <b style="color:var(--v-menta)">💎 <span id="uPts">0</span> EP</b>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px; margin-bottom:15px;">
+            <button onclick="tab('shop')" style="font-size:0.7rem">TIENDA</button>
+            <button onclick="tab('spin')" class="oro" style="font-size:0.7rem">RULETA</button>
+            <button onclick="tab('inv')" style="font-size:0.7rem">MIS COSAS</button>
+        </div>
+
+        <div id="t-shop">
+            <h3 style="margin-top:0">Eco-Tienda</h3>
+            <div id="shop-list" class="scroll"></div>
+        </div>
+
+        <div id="t-spin" class="hidden">
+            <div class="wheel-container" id="wheel-anchor">
+                <div class="pointer"></div>
+                <div id="wheel"></div>
+            </div>
+            <button id="btnSpin" class="oro" onclick="girar()">GIRAR (50 EP)</button>
+        </div>
+
+        <div id="t-inv" class="hidden">
+            <h3 style="margin-top:0">Inventario</h3>
+            <div id="inv-list" class="scroll"></div>
+        </div>
+
+        <button onclick="toggleMusic()" id="btnMusica" style="background:#555; font-size:0.6rem;">🎵 MÚSICA: OFF</button>
+        <button onclick="location.reload()" style="background:var(--rojo); margin-top:20px; font-size:0.7rem; text-shadow:none; box-shadow:none;">SALIR</button>
+    </div>
+
+    <script>
+        const actx = new (window.AudioContext || window.webkitAudioContext)();
+        function snd(fs, type, dur, vol) {
+            fs.forEach((f, i) => {
+                setTimeout(() => {
+                    const o = actx.createOscillator(), g = actx.createGain();
+                    o.type = type; o.frequency.setValueAtTime(f, actx.currentTime);
+                    g.gain.setValueAtTime(vol, actx.currentTime);
+                    g.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + dur);
+                    o.connect(g); g.connect(actx.destination);
+                    o.start(); o.stop(actx.currentTime + dur);
+                }, i * 100);
+            });
+        }
+
+        // --- AÑADIDO: SISTEMA DE GUARDADO ---
+        // Buscamos si hay datos guardados, si no, usamos el por defecto
+        const savedData = JSON.parse(localStorage.getItem('recytron_data'));
+        const users = savedData || [{ u: "pedro", p: "123", pts: 1000, inv: [] }];
+
+        function saveLocal() {
+            localStorage.setItem('recytron_data', JSON.stringify(users));
+        }
+
+        const tienda = [
+            { n: "🌳 Árbol", c: 1000 }, { n: "🥤 Vaso Bio", c: 800 },
+            { n: "🐝 Hotel", c: 600 }, { n: "🎒 Bolsa", c: 400 }
+        ];
+        const premios = [
+            { t: "NADA 🍃", win: 0 }, { t: "DTO. 20% 🎫", win: 1 },
+            { t: "NADA 🍂", win: 0 }, { t: "PEGATINA 🏷️", win: 1 },
+            { t: "NADA 🍃", win: 0 }, { t: "ZUMO ECO 🥤", win: 1 },
+            { t: "NADA 🍂", win: 0 }, { t: "CAMISETA 👕", win: 1 },
+            { t: "NADA 🍃", win: 0 }, { t: "💎 +100 PTS", win: 1, pts: 100 }
+        ];
+
+        let user = null, rot = 0;
+
+        const w = document.getElementById('wheel');
+        premios.forEach((p, i) => {
+            const d = document.createElement('div');
+            d.className = 'w-txt'; d.style.transform = `rotate(${i * 36 + 18}deg)`;
+            d.innerText = p.t; w.appendChild(d);
+        });
+
+        function entrar() {
+            const u = document.getElementById('uIn').value, p = document.getElementById('pIn').value;
+            const found = users.find(x => x.u === u && x.p === p);
+            if(found) login(found); else alert("Error de acceso");
+        }
+
+        function login(uObj) {
+            user = uObj; snd([400, 800, 1200], 'sine', 0.6, 0.1);
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-dash').classList.remove('hidden');
+            document.getElementById('uName').innerText = user.u.toUpperCase();
+            upd(); renderTienda();
+        }
+
+        function upd() {
+            document.getElementById('uPts').innerText = user.pts;
+            const list = document.getElementById('inv-list');
+            list.innerHTML = user.inv.length ? user.inv.map(i => `<div style="padding:5px; border-bottom:1px solid #ccc">✅ ${i}</div>`).join('') : 'Vacío';
+            saveLocal(); // Guardar cada vez que algo cambia
+        }
+
+        function renderTienda() {
+            const list = document.getElementById('shop-list');
+            list.innerHTML = tienda.map(i => `
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span>${i.n} (${i.c} EP)</span>
+                    <button onclick="comprar(${i.c}, '${i.n}')" style="width:60px; padding:5px; margin:0; font-size:0.6rem">OK</button>
+                </div>
+            `).join('');
+        }
+
+        function comprar(c, n) {
+            if(user.pts >= c) { user.pts -= c; user.inv.unshift(n); upd(); snd([800, 1200], 'sine', 0.5, 0.1); }
+            else { snd([150], 'sawtooth', 0.3, 0.1); alert("Sin puntos"); }
+        }
+
+        function explode() {
+            const rect = document.getElementById('wheel-anchor').getBoundingClientRect();
+            const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+            for(let i=0; i<60; i++) {
+                const p = document.createElement('div'); p.className = 'particle';
+                p.style.background = i%2 ? '#39ff14' : '#ffb703';
+                p.style.width = p.style.height = Math.random()*12+6+'px';
+                p.style.left = cx+'px'; p.style.top = cy+'px';
+                p.style.setProperty('--tx', (Math.random()-0.5)*500+'px');
+                p.style.setProperty('--ty', (Math.random()-0.5)*500+'px');
+                document.body.appendChild(p); setTimeout(() => p.remove(), 1000);
+            }
+        }
+
+        function girar() {
+            if(user.pts < 50) return;
+            user.pts -= 50; upd(); snd([600], 'sine', 0.1, 0.1);
+            const btn = document.getElementById('btnSpin'); btn.disabled = true;
+            rot += (360 * 5) + Math.floor(Math.random() * 360);
+            w.style.transform = `rotate(${rot}deg)`;
+            let t = 0; const itv = setInterval(() => { snd([1200], 'sine', 0.05, 0.02); t++; if(t>30) clearInterval(itv); }, 140);
+
+            setTimeout(() => {
+                btn.disabled = false;
+                const idx = Math.floor(((360 - (rot % 360)) % 360) / 36);
+                const p = premios[idx];
+                
+                // AÑADIDO: Lógica de premio y mensaje "Nada"
+                if(p.win) {
+                    explode(); snd([523, 659, 783, 1046], 'triangle', 1, 0.1);
+                    document.getElementById('prize-display').innerText = p.t;
+                    document.getElementById('big-announcer').classList.add('show');
+                    if(p.pts) user.pts += p.pts; else user.inv.unshift(p.t);
+                } else { 
+                    snd([150], 'sawtooth', 0.4, 0.1); 
+                    // Mostramos mensaje de nada en el display de premios también para ser consistentes
+                    document.getElementById('prize-display').innerText = "¡MALA SUERTE! 🍃";
+                    document.getElementById('big-announcer').classList.add('show');
+                }
+                upd();
+            }, 5000);
+        }
+
+        function closePrize() { document.getElementById('big-announcer').classList.remove('show'); }
+        function tab(t) {
+            ['shop','spin','inv'].forEach(x => document.getElementById('t-'+x).classList.add('hidden'));
+            document.getElementById('t-'+t).classList.remove('hidden');
+        }
+
+        // --- AÑADIDO: CONTROL MÚSICA ---
+        function toggleMusic() {
+            const m = document.getElementById('bgMusic');
+            const b = document.getElementById('btnMusica');
+            if (m.paused) { m.play(); b.innerText = "🔇 MÚSICA: ON"; }
+            else { m.pause(); b.innerText = "🎵 MÚSICA: OFF"; }
+        }
+
+        setInterval(() => {
+            const l = document.createElement('div'); l.className = 'leaf'; l.innerHTML = '🍃';
+            l.style.left = Math.random()*100+'vw'; l.style.animationDuration = Math.random()*3+2+'s';
+            document.body.appendChild(l); setTimeout(() => l.remove(), 5000);
+        }, 500);
+    </script>
+</body>
+</html>
