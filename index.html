@@ -19,15 +19,12 @@
             background-size: cover; background-position: center;
         }
 
-        /* --- HOJAS (MEMORIA LIMPIA) --- */
         .leaf { position: absolute; top: -50px; z-index: 1; pointer-events: none; font-size: 24px; animation: fall linear forwards; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
 
-        /* --- EXPLOSIÓN --- */
         .particle { position: absolute; pointer-events: none; z-index: 300; border-radius: 50%; animation: explode 1s ease-out forwards; }
         @keyframes explode { 0% { transform: translate(0,0) scale(1); opacity:1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity:0; } }
 
-        /* --- ANUNCIADOR GIGANTE (PREMIO) --- */
         #big-announcer {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
             background: white; padding: 50px; border-radius: 40px; border: 8px solid var(--amarillo-ods);
@@ -36,28 +33,21 @@
         }
         #big-announcer.show { transform: translate(-50%, -50%) scale(1); }
 
-        /* --- TARJETA PRINCIPAL --- */
         .card { 
             background: rgba(255, 255, 255, 0.9); padding: 2.5rem; border-radius: 40px; 
             box-shadow: 0 20px 40px rgba(0,0,0,0.2); width: 90%; max-width: 480px; 
             text-align: center; backdrop-filter: blur(10px); border: 4px solid var(--v-menta); position: relative; z-index: 10;
         }
 
-        /* --- BOTONES NEÓN --- */
         button { 
             background: var(--v-eco); color: white; border: none; padding: 15px;
             border-radius: 20px; cursor: pointer; font-weight: bold; width: 100%;
             margin-top: 10px; transition: 0.3s; font-family: 'Montserrat', sans-serif;
             text-shadow: 0 0 10px var(--neon); box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
         }
-        button:hover:not(:disabled) { transform: scale(1.02); text-shadow: 0 0 20px var(--neon); box-shadow: 0 0 25px rgba(57, 255, 20, 0.5); }
-        
-        button.oro { 
-            background: var(--amarillo-ods); color: black; 
-            text-shadow: 0 0 10px white; box-shadow: 0 0 15px rgba(255,183,3,0.4);
-        }
+        button:hover:not(:disabled) { transform: scale(1.02); }
+        button.oro { background: var(--amarillo-ods); color: black; }
 
-        /* --- RULETA --- */
         .wheel-container { position: relative; width: 280px; height: 280px; margin: 20px auto; }
         #wheel {
             width: 100%; height: 100%; border-radius: 50%; border: 6px solid white;
@@ -93,10 +83,10 @@
 
     <div id="view-login" class="card">
         <h1 style="color:var(--v-bosque)">RECYTRON 🌿</h1>
-        <input type="text" id="uIn" placeholder="Usuario (pedro)">
-        <input type="password" id="pIn" placeholder="Contraseña (123)">
-        <button onclick="entrar()">ENTRAR AL PANEL</button>
-        <button class="oro" onclick="login(users[0])" style="font-size: 0.7rem;">SIMULAR RFID</button>
+        <p style="font-size: 0.8rem;">CONEXIÓN NUBE ACTIVADA</p>
+        <input type="text" id="uIn" placeholder="ID de Usuario (ej: u1)">
+        <input type="password" id="pIn" placeholder="Contraseña">
+        <button onclick="entrar()">ENTRAR (DESDE NUBE)</button>
     </div>
 
     <div id="view-dash" class="card hidden">
@@ -130,33 +120,24 @@
         </div>
 
         <button onclick="toggleMusic()" id="btnMusica" style="background:#555; font-size:0.6rem;">🎵 MÚSICA: OFF</button>
-        <button onclick="location.reload()" style="background:var(--rojo); margin-top:20px; font-size:0.7rem; text-shadow:none; box-shadow:none;">SALIR</button>
+        <button onclick="location.reload()" style="background:var(--rojo); margin-top:20px; font-size:0.7rem;">CERRAR SESIÓN</button>
     </div>
 
-    <script>
-        const actx = new (window.AudioContext || window.webkitAudioContext)();
-        function snd(fs, type, dur, vol) {
-            fs.forEach((f, i) => {
-                setTimeout(() => {
-                    const o = actx.createOscillator(), g = actx.createGain();
-                    o.type = type; o.frequency.setValueAtTime(f, actx.currentTime);
-                    g.gain.setValueAtTime(vol, actx.currentTime);
-                    g.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + dur);
-                    o.connect(g); g.connect(actx.destination);
-                    o.start(); o.stop(actx.currentTime + dur);
-                }, i * 100);
-            });
-        }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
-        // --- AÑADIDO: SISTEMA DE GUARDADO ---
-        // Buscamos si hay datos guardados, si no, usamos el por defecto
-        const savedData = JSON.parse(localStorage.getItem('recytron_data'));
-        const users = savedData || [{ u: "pedro", p: "123", pts: 1000, inv: [] }];
+        // CONFIGURACIÓN DE TU PROYECTO FIREBASE
+        const firebaseConfig = {
+            databaseURL: "TU_URL_AQUÍ" // <--- PEGA TU URL DE FIREBASE AQUÍ
+        };
 
-        function saveLocal() {
-            localStorage.setItem('recytron_data', JSON.stringify(users));
-        }
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
+        // Variables Globales
+        window.user = null;
+        let rot = 0;
         const tienda = [
             { n: "🌳 Árbol", c: 1000 }, { n: "🥤 Vaso Bio", c: 800 },
             { n: "🐝 Hotel", c: 600 }, { n: "🎒 Bolsa", c: 400 }
@@ -169,8 +150,7 @@
             { t: "NADA 🍃", win: 0 }, { t: "💎 +100 PTS", win: 1, pts: 100 }
         ];
 
-        let user = null, rot = 0;
-
+        // Inicializar Ruleta
         const w = document.getElementById('wheel');
         premios.forEach((p, i) => {
             const d = document.createElement('div');
@@ -178,29 +158,88 @@
             d.innerText = p.t; w.appendChild(d);
         });
 
-        function entrar() {
-            const u = document.getElementById('uIn').value, p = document.getElementById('pIn').value;
-            const found = users.find(x => x.u === u && x.p === p);
-            if(found) login(found); else alert("Error de acceso");
-        }
+        // LOGIN DESDE FIREBASE (Sin cables)
+        window.entrar = function() {
+            const uId = document.getElementById('uIn').value;
+            const passIn = document.getElementById('pIn').value;
 
-        function login(uObj) {
-            user = uObj; snd([400, 800, 1200], 'sine', 0.6, 0.1);
-            document.getElementById('view-login').classList.add('hidden');
-            document.getElementById('view-dash').classList.remove('hidden');
-            document.getElementById('uName').innerText = user.u.toUpperCase();
-            upd(); renderTienda();
-        }
+            // Escuchar la nube para este usuario
+            const userRef = ref(db, 'usuarios/' + uId);
+            onValue(userRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.pass === passIn) {
+                    window.user = data;
+                    window.user.id = uId;
+                    document.getElementById('view-login').classList.add('hidden');
+                    document.getElementById('view-dash').classList.remove('hidden');
+                    document.getElementById('uName').innerText = uId.toUpperCase();
+                    updUI();
+                    renderTienda();
+                } else {
+                    alert("ID o Password incorrectos en la nube");
+                }
+            });
+        };
 
-        function upd() {
-            document.getElementById('uPts').innerText = user.pts;
+        function updUI() {
+            document.getElementById('uPts').innerText = window.user.pts;
             const list = document.getElementById('inv-list');
-            list.innerHTML = user.inv.length ? user.inv.map(i => `<div style="padding:5px; border-bottom:1px solid #ccc">✅ ${i}</div>`).join('') : 'Vacío';
-            saveLocal(); // Guardar cada vez que algo cambia
+            list.innerHTML = (window.user.inv && window.user.inv.length) 
+                ? window.user.inv.map(i => `<div style="padding:5px; border-bottom:1px solid #ccc">✅ ${i}</div>`).join('') 
+                : 'Vacío';
+        }
+
+        // GUARDAR EN LA NUBE (Cuando la web cambia algo)
+        function syncNube() {
+            set(ref(db, 'usuarios/' + window.user.id), window.user);
+        }
+
+        window.comprar = function(c, n) {
+            if(window.user.pts >= c) {
+                window.user.pts -= c;
+                if(!window.user.inv) window.user.inv = [];
+                window.user.inv.unshift(n);
+                syncNube(); // Se envía a la máquina también
+            } else { alert("Sin puntos"); }
+        };
+
+        window.girar = function() {
+            if(window.user.pts < 50) return;
+            window.user.pts -= 50; syncNube();
+            const btn = document.getElementById('btnSpin'); btn.disabled = true;
+            rot += (360 * 5) + Math.floor(Math.random() * 360);
+            w.style.transform = `rotate(${rot}deg)`;
+
+            setTimeout(() => {
+                btn.disabled = false;
+                const idx = Math.floor(((360 - (rot % 360)) % 360) / 36);
+                const p = premios[idx];
+                if(p.win) {
+                    if(p.pts) window.user.pts += p.pts; 
+                    else {
+                        if(!window.user.inv) window.user.inv = [];
+                        window.user.inv.unshift(p.t);
+                    }
+                    document.getElementById('prize-display').innerText = p.t;
+                    document.getElementById('big-announcer').classList.add('show');
+                } else {
+                    document.getElementById('prize-display').innerText = "¡MALA SUERTE! 🍃";
+                    document.getElementById('big-announcer').classList.add('show');
+                }
+                syncNube();
+            }, 5000);
+        };
+    </script>
+
+    <script>
+        function tab(t) {
+            ['shop','spin','inv'].forEach(x => document.getElementById('t-'+x).classList.add('hidden'));
+            document.getElementById('t-'+t).classList.remove('hidden');
         }
 
         function renderTienda() {
             const list = document.getElementById('shop-list');
+            const tienda = [{ n: "🌳 Árbol", c: 1000 }, { n: "🥤 Vaso Bio", c: 800 }, { n: "🐝 Hotel", c: 600 }, { n: "🎒 Bolsa", c: 400 }];
             list.innerHTML = tienda.map(i => `
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                     <span>${i.n} (${i.c} EP)</span>
@@ -209,61 +248,8 @@
             `).join('');
         }
 
-        function comprar(c, n) {
-            if(user.pts >= c) { user.pts -= c; user.inv.unshift(n); upd(); snd([800, 1200], 'sine', 0.5, 0.1); }
-            else { snd([150], 'sawtooth', 0.3, 0.1); alert("Sin puntos"); }
-        }
-
-        function explode() {
-            const rect = document.getElementById('wheel-anchor').getBoundingClientRect();
-            const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
-            for(let i=0; i<60; i++) {
-                const p = document.createElement('div'); p.className = 'particle';
-                p.style.background = i%2 ? '#39ff14' : '#ffb703';
-                p.style.width = p.style.height = Math.random()*12+6+'px';
-                p.style.left = cx+'px'; p.style.top = cy+'px';
-                p.style.setProperty('--tx', (Math.random()-0.5)*500+'px');
-                p.style.setProperty('--ty', (Math.random()-0.5)*500+'px');
-                document.body.appendChild(p); setTimeout(() => p.remove(), 1000);
-            }
-        }
-
-        function girar() {
-            if(user.pts < 50) return;
-            user.pts -= 50; upd(); snd([600], 'sine', 0.1, 0.1);
-            const btn = document.getElementById('btnSpin'); btn.disabled = true;
-            rot += (360 * 5) + Math.floor(Math.random() * 360);
-            w.style.transform = `rotate(${rot}deg)`;
-            let t = 0; const itv = setInterval(() => { snd([1200], 'sine', 0.05, 0.02); t++; if(t>30) clearInterval(itv); }, 140);
-
-            setTimeout(() => {
-                btn.disabled = false;
-                const idx = Math.floor(((360 - (rot % 360)) % 360) / 36);
-                const p = premios[idx];
-                
-                // AÑADIDO: Lógica de premio y mensaje "Nada"
-                if(p.win) {
-                    explode(); snd([523, 659, 783, 1046], 'triangle', 1, 0.1);
-                    document.getElementById('prize-display').innerText = p.t;
-                    document.getElementById('big-announcer').classList.add('show');
-                    if(p.pts) user.pts += p.pts; else user.inv.unshift(p.t);
-                } else { 
-                    snd([150], 'sawtooth', 0.4, 0.1); 
-                    // Mostramos mensaje de nada en el display de premios también para ser consistentes
-                    document.getElementById('prize-display').innerText = "¡MALA SUERTE! 🍃";
-                    document.getElementById('big-announcer').classList.add('show');
-                }
-                upd();
-            }, 5000);
-        }
-
         function closePrize() { document.getElementById('big-announcer').classList.remove('show'); }
-        function tab(t) {
-            ['shop','spin','inv'].forEach(x => document.getElementById('t-'+x).classList.add('hidden'));
-            document.getElementById('t-'+t).classList.remove('hidden');
-        }
 
-        // --- AÑADIDO: CONTROL MÚSICA ---
         function toggleMusic() {
             const m = document.getElementById('bgMusic');
             const b = document.getElementById('btnMusica');
