@@ -84,9 +84,9 @@
     <div id="view-login" class="card">
         <h1 style="color:var(--v-bosque)">RECYTRON 🌿</h1>
         <p style="font-size: 0.8rem;">CONEXIÓN NUBE ACTIVADA</p>
-        <input type="text" id="uIn" placeholder="ID de Usuario (ej: u1)">
+        <input type="text" id="uIn" placeholder="ID de Usuario (ej: usuario1)">
         <input type="password" id="pIn" placeholder="Contraseña">
-        <button onclick="entrar()">ENTRAR (DESDE NUBE)</button>
+        <button onclick="entrar()">ENTRAR</button>
     </div>
 
     <div id="view-dash" class="card hidden">
@@ -111,7 +111,7 @@
                 <div class="pointer"></div>
                 <div id="wheel"></div>
             </div>
-            <button id="btnSpin" class="oro" onclick="girar()">GIRAR (50 EP)</button>
+            <button id="btnSpin" class="oro" onclick="girar()">GIRAR (50 EcoPoints)</button>
         </div>
 
         <div id="t-inv" class="hidden">
@@ -139,8 +139,8 @@
         window.user = null;
         let rot = 0;
         const tienda = [
-            { n: "🌳 Árbol", c: 1000 }, { n: "🥤 Vaso Bio", c: 800 },
-            { n: "🐝 Hotel", c: 600 }, { n: "🎒 Bolsa", c: 400 }
+            { n: "🌳 Plantar un árbol", c: 1000 }, { n: "🥤 Vaso Bio", c: 800 },
+            { n: "🐝 Salvar a una abeja", c: 600 }, { n: "🎒 Bolsa biodegradable", c: 400 }
         ];
         const premios = [
             { t: "NADA 🍃", win: 0 }, { t: "DTO. 20% 🎫", win: 1 },
@@ -239,7 +239,7 @@
 
         function renderTienda() {
             const list = document.getElementById('shop-list');
-            const tienda = [{ n: "🌳 Árbol", c: 1000 }, { n: "🥤 Vaso Bio", c: 800 }, { n: "🐝 Hotel", c: 600 }, { n: "🎒 Bolsa", c: 400 }];
+            const tienda = [{ n: "🌳 Árbol", c: 1000 }, { n: "🥤 Vaso Bio", c: 800 }, { n: "🐝 Salvar a una abeja", c: 600 }, { n: "🎒 Bolsa biodegradable", c: 400 }];
             list.innerHTML = tienda.map(i => `
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                     <span>${i.n} (${i.c} EP)</span>
