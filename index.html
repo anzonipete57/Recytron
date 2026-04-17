@@ -139,13 +139,15 @@
         window.user = null;
         let rot = 0;
         const tienda = [
-            { n: "🌳 Plantar un árbol", c: 1000 }, { n: "🥤 Vaso Bio", c: 800 },
-            { n: "🐝 Salvar a una abeja", c: 600 }, { n: "🎒 Bolsa biodegradable", c: 400 }
+            { n: "🌳 Plantar un árbol 🌳", c: 700 }, { n: "🥤 Vaso Bio 🥤", c: 500 },
+            { n: "🔑 Llavero 🔑", c: 100 }, { n: "🎒 Bolsa Biodegradable 🎒", c: 200 }
+            { n: "👕 Camiseta 👕 ", c: 250 }, { n: "🎫 DTO. 20% 🎫", c: 800 },
+            { n: "🏷️ Pegatina 🏷️", c: 25 }
         ];
         const premios = [
             { t: "NADA 🍃", win: 0 }, { t: "DTO. 20% 🎫", win: 1 },
             { t: "NADA 🍂", win: 0 }, { t: "PEGATINA 🏷️", win: 1 },
-            { t: "NADA 🍃", win: 0 }, { t: "ZUMO ECO 🥤", win: 1 },
+            { t: "NADA 🍃", win: 0 }, { t: "LLAVERO 🥤", win: 1 },
             { t: "NADA 🍂", win: 0 }, { t: "CAMISETA 👕", win: 1 },
             { t: "NADA 🍃", win: 0 }, { t: "💎 +100 PTS", win: 1, pts: 100 }
         ];
@@ -239,7 +241,7 @@
 
         function renderTienda() {
             const list = document.getElementById('shop-list');
-            const tienda = [{ n: "🌳 Árbol", c: 1000 }, { n: "🥤 Vaso Bio", c: 800 }, { n: "🐝 Salvar a una abeja", c: 600 }, { n: "🎒 Bolsa biodegradable", c: 400 }];
+            const tienda = [{ n: "🌳 Plantar un árbol 🌳", c: 700 }, { n: "🥤 Vaso Bio 🥤", c: 500 }, { n: "🔑 Llavero 🔑", c: 100 }, { n: "🎒 Bolsa Biodegradable 🎒", c: 200 }, { n: "👕 Camiseta 👕 ", c: 250 }, { n: "🎫 DTO. 20% 🎫", c: 800 }, { n: "🏷️ Pegatina 🏷️", c: 25 }];
             list.innerHTML = tienda.map(i => `
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                     <span>${i.n} (${i.c} EP)</span>
@@ -253,8 +255,8 @@
         function toggleMusic() {
             const m = document.getElementById('bgMusic');
             const b = document.getElementById('btnMusica');
-            if (m.paused) { m.play(); b.innerText = "🔇 MÚSICA: ON"; }
-            else { m.pause(); b.innerText = "🎵 MÚSICA: OFF"; }
+            if (m.paused) { m.play(); b.innerText = "🎧 MÚSICA: ON"; }
+            else { m.pause(); b.innerText = "🔇 MÚSICA: OFF"; }
         }
 
         setInterval(() => {
