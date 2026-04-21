@@ -84,9 +84,9 @@
     <div id="view-login" class="card">
         <h1 style="color:var(--v-bosque)">RECYTRON 🌿</h1>
         <p style="font-size: 0.8rem;">CONEXIÓN NUBE ACTIVADA</p>
-        <input type="text" id="uIn" placeholder="ID de Usuario (ej: usuario1)">
+        <input type="text" id="uIn" placeholder="ID de Usuario (ej: u1)">
         <input type="password" id="pIn" placeholder="Contraseña">
-        <button onclick="entrar()">ENTRAR</button>
+        <button onclick="entrar()">ENTRAR (DESDE NUBE)</button>
     </div>
 
     <div id="view-dash" class="card hidden">
@@ -111,7 +111,7 @@
                 <div class="pointer"></div>
                 <div id="wheel"></div>
             </div>
-            <button id="btnSpin" class="oro" onclick="girar()">GIRAR (50 EcoPoints)</button>
+            <button id="btnSpin" class="oro" onclick="girar()">GIRAR (50 EP)</button>
         </div>
 
         <div id="t-inv" class="hidden">
@@ -139,15 +139,13 @@
         window.user = null;
         let rot = 0;
         const tienda = [
-            { n: "🌳 Plantar un árbol 🌳", c: 700 }, { n: "🥤 Vaso Bio 🥤", c: 500 },
-            { n: "🔑 Llavero 🔑", c: 100 }, { n: "🎒 Bolsa Biodegradable 🎒", c: 200 }
-            { n: "👕 Camiseta 👕 ", c: 250 }, { n: "🎫 DTO. 20% 🎫", c: 800 },
-            { n: "🏷️ Pegatina 🏷️", c: 25 }
+            { n: "🌳 Árbol", c: 1000 }, { n: "🥤 Vaso Bio", c: 800 },
+            { n: "🐝 Hotel", c: 600 }, { n: "🎒 Bolsa", c: 400 }
         ];
         const premios = [
             { t: "NADA 🍃", win: 0 }, { t: "DTO. 20% 🎫", win: 1 },
             { t: "NADA 🍂", win: 0 }, { t: "PEGATINA 🏷️", win: 1 },
-            { t: "NADA 🍃", win: 0 }, { t: "LLAVERO 🥤", win: 1 },
+            { t: "NADA 🍃", win: 0 }, { t: "ZUMO ECO 🥤", win: 1 },
             { t: "NADA 🍂", win: 0 }, { t: "CAMISETA 👕", win: 1 },
             { t: "NADA 🍃", win: 0 }, { t: "💎 +100 PTS", win: 1, pts: 100 }
         ];
@@ -241,7 +239,7 @@
 
         function renderTienda() {
             const list = document.getElementById('shop-list');
-            const tienda = [{ n: "🌳 Plantar un árbol 🌳", c: 700 }, { n: "🥤 Vaso Bio 🥤", c: 500 }, { n: "🔑 Llavero 🔑", c: 100 }, { n: "🎒 Bolsa Biodegradable 🎒", c: 200 }, { n: "👕 Camiseta 👕 ", c: 250 }, { n: "🎫 DTO. 20% 🎫", c: 800 }, { n: "🏷️ Pegatina 🏷️", c: 25 }];
+            const tienda = [{ n: "🌳 Árbol", c: 1000 }, { n: "🥤 Vaso Bio", c: 800 }, { n: "🐝 Hotel", c: 600 }, { n: "🎒 Bolsa", c: 400 }];
             list.innerHTML = tienda.map(i => `
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                     <span>${i.n} (${i.c} EP)</span>
@@ -255,8 +253,8 @@
         function toggleMusic() {
             const m = document.getElementById('bgMusic');
             const b = document.getElementById('btnMusica');
-            if (m.paused) { m.play(); b.innerText = "🎧 MÚSICA: ON"; }
-            else { m.pause(); b.innerText = "🔇 MÚSICA: OFF"; }
+            if (m.paused) { m.play(); b.innerText = "🔇 MÚSICA: ON"; }
+            else { m.pause(); b.innerText = "🎵 MÚSICA: OFF"; }
         }
 
         setInterval(() => {
