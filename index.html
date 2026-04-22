@@ -139,8 +139,9 @@
         window.user = null;
         let rot = 0;
         const tienda = [
-            { n: "🌳 Árbol", c: 1000 }, { n: "🏷️ Pegatina 🏷️", c: 80 },
-            { n: "🐝 Hotel", c: 600 }, { n: "🎒 Bolsa Bio 🎒", c: 150 }
+            { n: "🏷️ Pegatina", c: 80 }, 
+            { n: "🎒 Bolsa Biodegradable", c: 150 },
+            { n: "🔘 Chapa", c: 100 }
         ];
         const premios = [
             { t: "NADA 🍃", win: 0 }, { t: "DTO. 20% 🎫", win: 1 },
@@ -239,7 +240,11 @@
 
         function renderTienda() {
             const list = document.getElementById('shop-list');
-            const tienda = [{ n: "🌳 Árbol", c: 1000 }, { n: "🏷️ Pegatina 🏷️", c: 80 }, { n: "🐝 Hotel", c: 600 }, { n: "🎒 Bolsa Bio 🎒", c: 150 }];
+            const tienda = [
+                { n: "🏷️ Pegatina", c: 80 }, 
+                { n: "🎒 Bolsa Biodegradable", c: 150 }, 
+                { n: "🔘 Chapa", c: 100 }
+            ];
             list.innerHTML = tienda.map(i => `
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                     <span>${i.n} (${i.c} EP)</span>
